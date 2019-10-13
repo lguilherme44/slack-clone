@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import firebase from '../../firebase'
+
 import { Link } from 'react-router-dom'
 import {
   Button,
@@ -11,9 +13,29 @@ import {
 } from 'semantic-ui-react'
 
 class Register extends Component {
-  state = {}
-  handleChange = () => {}
+  state = {
+    username: '',
+    email: '',
+    password: '',
+    passwordConfirmation: '',
+  }
+  handleChange = e => {
+    this.setState({ [e.target.name]: e.target.value })
+  }
+  handleSubmit = e => {
+    e.preventDefault()
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(this.state.email, this.state.password)
+      .then(createdUser => {
+        console.log(createdUser)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
   render() {
+    const { username, email, password, passwordConfirmation } = this.state
     return (
       <Grid textAlign='center' verticalAlign='middle' className='app'>
         <Grid.Column style={{ maxWidth: 450 }}>
@@ -21,7 +43,7 @@ class Register extends Component {
             <Icon name='puzzle piece' color='orange' />
             Register for Chat
           </Header>
-          <Form size='large'>
+          <Form onSubmit={this.handleSubmit} size='large'>
             <Segment>
               <Form.Input
                 fluid
@@ -31,6 +53,7 @@ class Register extends Component {
                 placeholder='Username'
                 onChange={this.handleChange}
                 type='text'
+                value={username}
               />
               <Form.Input
                 fluid
@@ -40,6 +63,7 @@ class Register extends Component {
                 placeholder='Email'
                 onChange={this.handleChange}
                 type='email'
+                value={email}
               />
               <Form.Input
                 fluid
@@ -49,6 +73,7 @@ class Register extends Component {
                 placeholder='Password'
                 onChange={this.handleChange}
                 type='password'
+                value={password}
               />
               <Form.Input
                 fluid
@@ -58,6 +83,7 @@ class Register extends Component {
                 placeholder='Confirm your password'
                 onChange={this.handleChange}
                 type='password'
+                value={passwordConfirmation}
               />
               <Button color='orange' fluid size='large'>
                 Sign Up
