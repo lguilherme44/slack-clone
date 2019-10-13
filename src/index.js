@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
 import registerServiceWorker from './registerServiceWorker'
+import 'semantic-ui-css/semantic.min.css'
 
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 
@@ -12,9 +12,9 @@ import Register from './components/Auth/Register'
 const Root = () => (
   <BrowserRouter>
     <Switch>
-      <Route exact to='/' component={App} />
-      <Route exact to='/login' component={Login} />
-      <Route exact to='/register' component={Register} />
+      <Route exact path='/' component={App} />
+      <Route exact path='/login' component={Login} />
+      <Route exact path='/register' component={Register} />
     </Switch>
   </BrowserRouter>
 )
