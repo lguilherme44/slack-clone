@@ -4,20 +4,19 @@ import './index.css'
 import registerServiceWorker from './registerServiceWorker'
 
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import Router from 'react-router-dom/Router'
 
 import App from './components/App'
 import Login from './components/Auth/Login'
 import Register from './components/Auth/Register'
 
 const Root = () => (
-  <Router>
+  <BrowserRouter>
     <Switch>
       <Route exact to='/' component={App} />
       <Route exact to='/login' component={Login} />
       <Route exact to='/register' component={Register} />
     </Switch>
-  </Router>
+  </BrowserRouter>
 )
 
 ReactDOM.render(<Root />, document.getElementById('root'))
