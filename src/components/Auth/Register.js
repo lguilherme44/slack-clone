@@ -72,7 +72,7 @@ class Register extends Component {
       : ''
   }
   displayErrors = errors => {
-    errors.map((error, i) => <p key={i}>{error.message}</p>)
+    return errors.map((error, i) => <p key={i}>{error.message}</p>)
   }
   handleSubmit = e => {
     e.preventDefault()
@@ -192,7 +192,7 @@ class Register extends Component {
               </Button>
             </Segment>
           </Form>
-          {this.state.errors > 0 && (
+          {this.state.errors.length > 0 && (
             <Message error>
               <h4>Error</h4>
               {this.displayErrors(errors)}
