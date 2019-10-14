@@ -6,6 +6,7 @@ import { BrowserRouter, Switch, Route, withRouter } from 'react-router-dom'
 import { createStore } from 'redux'
 import { Provider, connect } from 'react-redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
+
 import 'semantic-ui-css/semantic.min.css'
 
 import firebase from './firebase'
@@ -15,6 +16,7 @@ import { setUser } from './actions'
 import App from './components/App'
 import Login from './components/Auth/Login'
 import Register from './components/Auth/Register'
+import Spinner from './components/Spinner'
 
 const store = createStore(reducers, composeWithDevTools())
 class Root extends Component {
@@ -27,7 +29,9 @@ class Root extends Component {
     })
   }
   render() {
-    return (
+    return this.props.isLoading ? (
+      <Spinner />
+    ) : (
       <Switch>
         <Route exact path='/' component={App} />
         <Route exact path='/login' component={Login} />
@@ -36,9 +40,12 @@ class Root extends Component {
     )
   }
 }
+const mapStateFromProps = state => ({
+  isLoading: state.user.isLoading,
+})
 const RootWithRouter = withRouter(
   connect(
-    null,
+    mapStateFromProps,
     { setUser }
   )(Root)
 )
