@@ -11,7 +11,7 @@ import 'semantic-ui-css/semantic.min.css'
 
 import firebase from './firebase'
 import { reducers } from './reducers'
-import { setUser } from './actions'
+import { setUser, clearUser } from './actions'
 
 import App from './components/App'
 import Login from './components/Auth/Login'
@@ -25,6 +25,9 @@ class Root extends Component {
       if (user) {
         this.props.setUser(user)
         this.props.history.push('/')
+      } else {
+        this.props.history.push('/login')
+        this.props.clearUser()
       }
     })
   }
@@ -46,7 +49,7 @@ const mapStateFromProps = state => ({
 const RootWithRouter = withRouter(
   connect(
     mapStateFromProps,
-    { setUser }
+    { setUser, clearUser }
   )(Root)
 )
 ReactDOM.render(
