@@ -8,11 +8,13 @@ import { Button, Form, Icon, Input, Menu, Modal } from 'semantic-ui-react'
 
 class Channels extends Component {
   state = {
+    activeChannel: '',
     channels: [],
     channelDetails: '',
     channelName: '',
     channelsRef: firebase.database().ref('channels'),
     openModal: false,
+    firstLoad: true,
   }
   componentDidMount() {
     this.addListeners()
@@ -48,10 +50,11 @@ class Channels extends Component {
     let loadedChannels = []
     channelsRef.on('child_added', snap => {
       loadedChannels.push(snap.val())
-      this.setState({ channels: loadedChannels })
+      this.setState({ channels: loadedChannels }, () => this.setFirstChannel())
     })
   }
   changeChannel = channel => {
+    this.setActiveChannel(channel)
     this.props.setCurrentChannel(channel)
   }
   closeModal = () => {
@@ -63,6 +66,7 @@ class Channels extends Component {
         key={channel.id}
         onClick={() => this.changeChannel(channel)}
         name={channel.name}
+        active={channel.id === this.state.activeChannel}
         style={{ opacity: 0.7 }}
       >
         # {channel.name}
@@ -71,6 +75,17 @@ class Channels extends Component {
   }
   openModal = () => {
     this.setState({ openModal: true })
+  }
+  setActiveChannel = channel => {
+    this.setState({ activeChannel: channel.id })
+  }
+  setFirstChannel = () => {
+    const firstChannel = this.state.channels[0]
+    if (this.state.firstLoad && this.state.channels.length > 0) {
+      this.props.setCurrentChannel(firstChannel)
+      this.setActiveChannel(firstChannel)
+    }
+    this.setState({ firstLoad: false })
   }
   isFormValid = ({ channelName, channelDetails }) => {
     return channelName && channelDetails
@@ -104,6 +119,7 @@ class Channels extends Component {
           </Menu.Item>
           {channels.length > 0 && this.displayChannels(channels)}
         </Menu.Menu>
+        {/* TODO: refactor modal window to separate component */}
         <Modal basic open={openModal} onClose={this.closeModal}>
           <Modal.Header>Add a channel</Modal.Header>
           <Modal.Content>
