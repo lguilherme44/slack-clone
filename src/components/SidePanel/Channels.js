@@ -3,13 +3,21 @@ import { connect } from 'react-redux'
 import firebase from '../../firebase'
 import { Button, Form, Icon, Input, Menu, Modal } from 'semantic-ui-react'
 
-const channelsRef = firebase.database().ref('channels')
 class Channels extends Component {
-  state = { channelDetails: '', channelName: '', openModal: false }
+  state = {
+    channels: [],
+    channelDetails: '',
+    channelName: '',
+    channelsRef: firebase.database().ref('channels'),
+    openModal: false,
+  }
+  componentDidMount() {
+    this.addListeners()
+  }
   addChannel = () => {
     const { user } = this.props
     console.log(this.props)
-    const { channelName, channelDetails } = this.state
+    const { channelName, channelDetails, channelsRef } = this.state
     const key = channelsRef.push().key
     const newChannel = {
       id: key,
@@ -32,8 +40,28 @@ class Channels extends Component {
         console.error(err)
       })
   }
+  addListeners = () => {
+    const { channelsRef } = this.state
+    let loadedChannels = []
+    channelsRef.on('child_added', snap => {
+      loadedChannels.push(snap.val())
+      this.setState({ channels: loadedChannels })
+    })
+  }
   closeModal = () => {
     this.setState({ openModal: false })
+  }
+  displayChannels = channels => {
+    return channels.map(channel => (
+      <Menu.Item
+        key={channel.id}
+        onClick={() => console.log(channel)}
+        name={channel.name}
+        style={{ opacity: 0.7 }}
+      >
+        # {channel.name}
+      </Menu.Item>
+    ))
   }
   openModal = () => {
     this.setState({ openModal: true })
@@ -53,8 +81,7 @@ class Channels extends Component {
     }
   }
   render() {
-    const { channels = [] } = this.props
-    const { openModal } = this.state
+    const { channels, openModal } = this.state
     return (
       <React.Fragment>
         <Menu.Menu style={{ paddingBottom: '2em' }}>
@@ -69,6 +96,7 @@ class Channels extends Component {
               style={{ cursor: 'pointer' }}
             />
           </Menu.Item>
+          {channels.length > 0 && this.displayChannels(channels)}
         </Menu.Menu>
         <Modal basic open={openModal} onClose={this.closeModal}>
           <Modal.Header>Add a channel</Modal.Header>
@@ -107,7 +135,7 @@ class Channels extends Component {
   }
 }
 const mapStateToProps = state => {
-  return { channels: state.channels, user: state.user.currentUser }
+  return { user: state.user.currentUser }
 }
 export default connect(
   mapStateToProps,
