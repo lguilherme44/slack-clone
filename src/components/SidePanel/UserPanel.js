@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import firebase from '../../firebase'
-import { Dropdown, Grid, Header, Icon } from 'semantic-ui-react'
+import { Dropdown, Grid, Header, Icon, Image } from 'semantic-ui-react'
 
 class UserPanel extends Component {
   handleSignOut = () => {
@@ -14,6 +14,7 @@ class UserPanel extends Component {
     const { currentUser } = this.props
     const userName = (
       <span>
+        <Image src={currentUser.photoURL} spaced='right' avatar />
         Signed in as{' '}
         <strong style={{ color: 'orange' }}>{currentUser.displayName}</strong>
       </span>
