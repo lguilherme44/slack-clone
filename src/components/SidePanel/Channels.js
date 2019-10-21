@@ -19,6 +19,9 @@ class Channels extends Component {
   componentDidMount() {
     this.addListeners()
   }
+  componentWillUnmount() {
+    this.removeListeners()
+  }
   addChannel = () => {
     const { user } = this.props
     console.log(this.props)
@@ -75,6 +78,9 @@ class Channels extends Component {
   }
   openModal = () => {
     this.setState({ openModal: true })
+  }
+  removeListeners = () => {
+    this.state.channelsRef.off()
   }
   setActiveChannel = channel => {
     this.setState({ activeChannel: channel.id })
