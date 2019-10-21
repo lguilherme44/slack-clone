@@ -50,7 +50,7 @@ class MessagesForm extends Component {
     }
   }
   render() {
-    const { errors } = this.state
+    const { errors, message, isLoading } = this.state
     return (
       <Segment className='message__form'>
         <Input
@@ -64,10 +64,12 @@ class MessagesForm extends Component {
           label={<Button icon={'add'} />}
           labelPosition='left'
           placeholder='Write your message'
+          value={message}
         />
         <Button.Group icon widths='2' style={{ marginTop: '1em' }}>
           <Button
             basic
+            disabled={isLoading}
             onClick={this.sendMessage}
             color='blue'
             content='Add reply'
