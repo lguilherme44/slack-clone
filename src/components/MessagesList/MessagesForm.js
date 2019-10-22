@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import uuidv4 from 'uuid/v4'
 import { Button, Input, Segment } from 'semantic-ui-react'
 import firebase from '../../firebase'
 
@@ -11,18 +12,25 @@ class MessagesForm extends Component {
     isLoading: false,
     message: '',
     modal: false,
+    uploadState: '',
+    uploadTask: null,
+    percentUploaded: 0,
+    storageRef: firebase.storage().ref(),
   }
-  createMessage = () => {
+  createMessage = (fileURL = null) => {
     const { currentUser } = this.props
-    const { message } = this.state
     const newMessage = {
-      content: message,
       timeStamp: firebase.database.ServerValue.TIMESTAMP,
       user: {
         id: currentUser.uid,
         name: currentUser.displayName,
         avatar: currentUser.photoURL,
       },
+    }
+    if (fileURL !== null) {
+      newMessage['image'] = fileURL
+    } else {
+      newMessage['content'] = this.state.message
     }
     return newMessage
   }
@@ -59,7 +67,64 @@ class MessagesForm extends Component {
     this.setState({ modal: false })
   }
   uploadFile = (file, metadata) => {
-    console.log(file, metadata)
+    const pathToUpload = this.props.currentChannel.id
+    const ref = this.props.messagesRef
+    const filePath = `chat/public/${uuidv4()}.jpg`
+    this.setState(
+      {
+        uploadState: 'uploading',
+        uploadTask: this.state.storageRef.child(filePath).put(file, metadata),
+      },
+      () => {
+        this.state.uploadTask.on(
+          'state_changed',
+          snap => {
+            const percentUploaded = Math.round(
+              (snap.bytesTransferred / snap.totalBytes) * 100
+            )
+            this.setState({ percentUploaded })
+          },
+          err => {
+            console.error(err)
+            this.setState({
+              errors: this.state.errors.concat(err),
+              uploadState: 'error',
+              uploadTask: null,
+            })
+          },
+          () => {
+            this.state.uploadTask.snapshot.ref
+              .getDownloadURL()
+              .then(downloadURL => {
+                this.sendFileMessage(downloadURL, ref, pathToUpload)
+              })
+              .catch(err => {
+                console.error(err)
+                this.setState({
+                  errors: this.state.errors.concat(err),
+                  uploadState: 'error',
+                  uploadTask: null,
+                })
+              })
+          }
+        )
+      }
+    )
+  }
+  sendFileMessage = (fileURL, ref, pathToUpload) => {
+    ref
+      .child(pathToUpload)
+      .push()
+      .set(this.createMessage(fileURL))
+      .then(() => {
+        this.setState({ uploadState: 'done' })
+      })
+      .catch(err => {
+        console.error(err)
+        this.setState({
+          errors: this.state.errors.concat(err),
+        })
+      })
   }
   render() {
     const { errors, message, modal, isLoading } = this.state
@@ -68,11 +133,13 @@ class MessagesForm extends Component {
         <Input
           fluid
           className={
-            errors.some(error => error.includes('message')) ? 'error' : ''
+            errors.some(error => error.message.includes('message'))
+              ? 'error'
+              : ''
           }
           name='message'
           onChange={this.handleChange}
-          style={{ margenBottom: '0.5em' }}
+          style={{ marginBottom: '0.5em' }}
           label={<Button icon={'add'} />}
           labelPosition='left'
           placeholder='Write your message'
