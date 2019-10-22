@@ -2,8 +2,8 @@ import React from 'react'
 import moment from 'moment'
 import { Comment } from 'semantic-ui-react'
 
-const calculateTime = time => {
-  moment(time).fromNow()
+const calculateTime = timeStamp => {
+  return moment(timeStamp).fromNow()
 }
 const isOwnMessage = (message, user) => {
   return message.user.id === user.uid ? 'message__self' : ''
@@ -14,7 +14,7 @@ function Message({ message, user }) {
       <Comment.Avatar src={message.user.avatar} />
       <Comment.Content className={isOwnMessage(message, user)}>
         <Comment.Author as='a'>{message.user.name}</Comment.Author>
-        <Comment.Metadata>{calculateTime(message.timestamp)}</Comment.Metadata>
+        <Comment.Metadata>{calculateTime(message.timeStamp)}</Comment.Metadata>
         <Comment.Text>{message.content}</Comment.Text>
       </Comment.Content>
     </Comment>

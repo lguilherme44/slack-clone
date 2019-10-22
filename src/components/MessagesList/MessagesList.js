@@ -19,6 +19,9 @@ class MessagesList extends Component {
       this.addListeners(currentChannel.id)
     }
   }
+  componentWillUnmount() {
+    this.removeListeners()
+  }
   addListeners = channelId => {
     this.addMessageListener(channelId)
   }
@@ -28,6 +31,11 @@ class MessagesList extends Component {
       loadedMessages.push(snap.val())
       this.setState({ messages: loadedMessages, isLoading: false })
     })
+  }
+  // TODO refactor
+  removeListeners = () => {
+    let messageRef = firebase.database().ref('messages')
+    messageRef.off()
   }
   displayMessages = messages =>
     messages.length > 0 &&
