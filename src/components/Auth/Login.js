@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import firebase from '../../firebase'
+import firebaseService from '../../services/firebaseService'
 
 import { Link } from 'react-router-dom'
 import {
@@ -34,12 +34,8 @@ class Login extends Component {
     e.preventDefault()
     if (this.isFormValid(this.state)) {
       this.setState({ errors: [], loading: true })
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(this.state.email, this.state.password)
-        .then(signedInUser => {
-          console.log(signedInUser)
-        })
+      firebaseService
+        .signIn(this.state.email, this.state.password)
         .catch(err => {
           console.log(err)
           this.setState({

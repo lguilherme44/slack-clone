@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import firebase from '../../firebase'
+import firebaseService from '../../services/firebaseService'
 import { setCurrentChannel } from '../../actions'
 
 import { Button, Form, Icon, Input, Menu, Modal } from 'semantic-ui-react'
@@ -12,7 +12,6 @@ class Channels extends Component {
     channels: [],
     channelDetails: '',
     channelName: '',
-    channelsRef: firebase.database().ref('channels'),
     openModal: false,
     firstLoad: true,
   }
@@ -24,9 +23,8 @@ class Channels extends Component {
   }
   addChannel = () => {
     const { user } = this.props
-    console.log(this.props)
-    const { channelName, channelDetails, channelsRef } = this.state
-    const key = channelsRef.push().key
+    const { channelName, channelDetails } = this.state
+    const key = firebaseService.channelsRef.push().key
     const newChannel = {
       id: key,
       name: channelName,
@@ -36,9 +34,8 @@ class Channels extends Component {
         avatar: user.photoURL,
       },
     }
-    channelsRef
-      .child(key)
-      .update(newChannel)
+    firebaseService
+      .addChannel(key, newChannel)
       .then(() => {
         this.setState({ channelName: '', channelDetails: '' })
         this.closeModal()
@@ -49,9 +46,8 @@ class Channels extends Component {
       })
   }
   addListeners = () => {
-    const { channelsRef } = this.state
     let loadedChannels = []
-    channelsRef.on('child_added', snap => {
+    firebaseService.channelsRef.on('child_added', snap => {
       loadedChannels.push(snap.val())
       this.setState({ channels: loadedChannels }, () => this.setFirstChannel())
     })
@@ -80,7 +76,7 @@ class Channels extends Component {
     this.setState({ openModal: true })
   }
   removeListeners = () => {
-    this.state.channelsRef.off()
+    firebaseService.channelsRef.off()
   }
   setActiveChannel = channel => {
     this.setState({ activeChannel: channel.id })

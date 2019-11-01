@@ -1,14 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import firebase from '../../firebase'
+import firebaseService from '../../services/firebaseService'
 import { Dropdown, Grid, Header, Icon, Image } from 'semantic-ui-react'
 
 class UserPanel extends Component {
   handleSignOut = () => {
-    firebase
-      .auth()
-      .signOut()
-      .then(() => console.log('signed out'))
+    firebaseService.signOut()
   }
   render() {
     const { currentUser } = this.props

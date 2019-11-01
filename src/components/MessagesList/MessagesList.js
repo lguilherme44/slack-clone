@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Comment, Segment } from 'semantic-ui-react'
 
-import firebase from '../../firebase'
+import firebaseService from '../../services/firebaseService'
 
 import Message from './Message'
 import MessagesHeader from './MessagesHeader'
@@ -10,7 +10,6 @@ import MessagesForm from './MessagesForm'
 class MessagesList extends Component {
   state = {
     messages: [],
-    messagesRef: firebase.database().ref('messages'),
     isLoading: true,
   }
   componentDidMount() {
@@ -27,15 +26,13 @@ class MessagesList extends Component {
   }
   addMessageListener = channelId => {
     let loadedMessages = []
-    this.state.messagesRef.child(channelId).on('child_added', snap => {
+    firebaseService.messagesRef.child(channelId).on('child_added', snap => {
       loadedMessages.push(snap.val())
       this.setState({ messages: loadedMessages, isLoading: false })
     })
   }
-  // TODO refactor
   removeListeners = () => {
-    let messageRef = firebase.database().ref('messages')
-    messageRef.off()
+    firebaseService.messagesRef.off()
   }
   displayMessages = messages =>
     messages.length > 0 &&
@@ -47,7 +44,7 @@ class MessagesList extends Component {
       />
     ))
   render() {
-    const { messages, messagesRef } = this.state
+    const { messages } = this.state
     return (
       <React.Fragment>
         <MessagesHeader />
@@ -56,7 +53,7 @@ class MessagesList extends Component {
             {this.displayMessages(messages)}
           </Comment.Group>
         </Segment>
-        <MessagesForm messagesRef={messagesRef} />
+        <MessagesForm />
       </React.Fragment>
     )
   }

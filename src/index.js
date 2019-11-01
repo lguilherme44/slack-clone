@@ -9,7 +9,7 @@ import { composeWithDevTools } from 'redux-devtools-extension'
 
 import 'semantic-ui-css/semantic.min.css'
 
-import firebase from './firebase'
+import firebase from './services/firebase'
 import { reducers } from './reducers'
 import { setUser, clearUser } from './actions'
 
@@ -22,6 +22,7 @@ const store = createStore(reducers, composeWithDevTools())
 class Root extends Component {
   componentDidMount() {
     firebase.auth().onAuthStateChanged(user => {
+      // TODO refactor with dispatch
       if (user) {
         this.props.setUser(user)
         this.props.history.push('/')
